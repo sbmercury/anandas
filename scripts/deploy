@@ -10,7 +10,7 @@ ssh root@167.99.148.54 <<EOF
  
   npm install --production
  
-  pm2 restart spencr
+  pm2 restart anandas
  
   exit
  
