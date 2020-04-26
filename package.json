@@ -1,0 +1,33 @@
+{
+  "//1": "describes your app and its dependencies",
+  "//2": "https://docs.npmjs.com/files/package.json",
+  "//3": "updating this file will download and update your packages",
+  "name": "spencr-me",
+  "version": "0.0.1",
+  "description": "Personal URL Shortener",
+  "main": "server.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+  },
+  "devDependencies": {
+ 
+    "mocha": "1.20.1",
+ 
+    "supertest": "0.13.0"
+ 
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "url": "https://github.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "express"
+  ]
+}
