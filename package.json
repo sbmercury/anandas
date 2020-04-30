@@ -19,8 +19,8 @@
     "dotenv": "^8.2.0"
   },
   "devDependencies": {
-    "mocha": "7.1.2",
-    "supertest": "4.0.2"
+    "mocha": "1.20.1",
+    "supertest": "0.13.0"
   },
   "engines": {
     "node": "8.x"
