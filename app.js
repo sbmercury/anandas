@@ -36,24 +36,60 @@ let list = mongoose.model('list', listSchema);
 let rule = new schedule.RecurrenceRule();
 rule.hour = 4;
 schedule.scheduleJob(rule, function() {
-    sendEmail();
+    sendEmail().then();
 });
 
-function sendEmail() {
+app.get("/api/send", function(req, res) {
+    sendEmail().then()
+    res.send("Hi")
+})
+
+async function sendEmail() {
     let date = new Date();
-    let text = "Basic email";
-    let html = text.replace(/\n/g, "<br>");
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID);
-    const msg = {
-        to: process.env.RECIPIENT,
-        from: 'anandas@spencerbartlett.com',
-        subject: 'Knowledge for ' + (date.getMonth() + 1) + "/" + date.getDate(),
-        text: text,
-        html: html,
-    };
-    sgMail.send(msg);
-    return "Sent";
+    const data = await list.findOne({id: 1});
+    let pages = data.pages;
+    let id = pages.pop();
+    data.pages = pages;
+    data.remaining = data.remaining - 1;
+    await data.save();
+    console.log(id);
+
+    let url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=' + id +
+        '&prop=text%7Ccategories%7Csections%7Cdisplaytitle%7Cparsewarnings&formatversion=2'
+    https.get(url, (resp) => {
+      let data = '';
+
+      // A chunk of data has been recieved.
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      // The whole response has been received. Print out the result.
+      resp.on('end', () => {
+          let text = JSON.parse(data).parse.text;
+          text = JSON.stringify(text);
+          text = text.substring(0, text.nth_index_of("References", 1));
+          let html = text.replace("\n", "<br>");
+          html = html.replace("[edit]", "");
+          html = html.replace("\"", "");
+
+          console.log(html);
+          const sgMail = require('@sendgrid/mail');
+          sgMail.setApiKey(process.env.SENDGRID);
+          const msg = {
+              to: process.env.RECIPIENT,
+              from: 'anandas@spencerbartlett.com',
+              subject: 'Knowledge for ' + (date.getMonth() + 1) + "/" + date.getDate(),
+              text: text,
+              html: html,
+          };
+          //sgMail.send(msg);
+          return "Sent";
+      });
+
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
 }
 
 app.get("/", function(req, res) {
@@ -61,7 +97,7 @@ app.get("/", function(req, res) {
 });
 
 app.post('/api/update_list', function(req, res) {
-    let url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=links%7Ccategories&generator=categorymembers&gcmtitle=Category%3A'
+    let url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&maxlag=5&prop=links%7Ccategories&generator=categorymembers&gcmtitle=Category%3A'
         + req.body.name + '&gcmlimit=25';
     https.get(url, (resp) => {
       let data = '';
@@ -75,6 +111,7 @@ app.post('/api/update_list', function(req, res) {
       resp.on('end', () => {
           if(JSON.parse(data).query != null) {
               let arr = JSON.stringify(JSON.parse(data).query.pages).split("},");
+              console.log(arr);
               let id_arr = []
               for (let i = 0; i < arr.length; i++) {
                   let obj = arr.pop()
@@ -103,6 +140,15 @@ app.get('/api/current_list', function(req, res) {
        res.send(data.name);
    })
 });
+
+String.prototype.nth_index_of = function(pattern, n) {
+    let i = -1;
+
+    while (n-- && i++ < this.length) {
+        i = this.indexOf(pattern, i);
+        if (i < 0) break;
+    }
+}
 
 
 // listen for requests :)
