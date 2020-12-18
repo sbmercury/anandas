@@ -1,16 +1,36 @@
-This is a simple implementation of a microlearning app. It's not yet complete and is still a work in progress. The intent is to allow the user to select a Wikipedia category and the app will automatically email them a page from that category every day. The user can change categories at any time and will receive an extra email notifying them if the category they're currently using is about to run out.
+# Anandas
 
----
-This app uses:
+Anandas is a simple microlearning app that allows the user to set a Wikipedia
+category then receive a random article from that category emailed to them each day.
 
--NodeJS/Express
+## Installation
 
--MongoDB (for storing category information)
+#### Linux
 
--SendGrid (for sending emails)
+- Install packages
 
--Node Schedule (for running recurring tasks)
+`npm install`
 
----
+- Set environment variables
 
-My personal version uses Jenkins to automatically deploy changes to a DigitalOcean VPS that it's hosted on.
+`process.env.PORT: sets what port the app will run on (default 8073)`  
+`process.env.RECIPIENT: email address you want to send emails to`  
+`process.env.SENDGRID: sendgrid API key (used to send emails)`  
+`process.env.DATABASE: a mongoDB connection URL, used to store articles for the current category`
+
+
+- Start the app
+
+`node app.js`
+
+## Features
+
+- Select, validate and store a Wikipedia category to get articles from
+
+- Send a formatted version of the Wikipedia page to the specified email
+address
+  
+- Keeps track of articles to send each article once and send through the whole category
+
+## Credits
+Spencer Bartlett, Creator
