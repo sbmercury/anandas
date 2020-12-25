@@ -3,7 +3,6 @@ const express = require('express');
 const app = express();
 app.use(express.static('public'));
 
-const mongo = require('mongodb');
 const mongoose = require('mongoose');
 
 const https = require('https');
@@ -68,14 +67,15 @@ async function sendEmail() {
       resp.on('end', () => {
           let text = JSON.parse(data).parse.text;
           text = JSON.stringify(text);
+          text = text.replace("/\[edit\]", "");
           text = text.substring(0, text.nth_index_of("References", 1));
-          let html = text.replace("\n", "<br>");
-          html = html.replace("[edit]", "");
-          html = html.replace("\"", "");
+          let html = text.replace("/\n/g", "<br>");
+          //html = html.replace("/\[edit\]/g", "");
+          //html = html.replace("", "");
 
-          console.log(html);
           const sgMail = require('@sendgrid/mail');
           sgMail.setApiKey(process.env.SENDGRID);
+          console.log(html);
           const msg = {
               to: process.env.RECIPIENT,
               from: 'anandas@spencerbartlett.com',
@@ -83,7 +83,7 @@ async function sendEmail() {
               text: text,
               html: html,
           };
-          //sgMail.send(msg);
+          sgMail.send(msg);
           return "Sent";
       });
 
@@ -118,6 +118,8 @@ app.post('/api/update_list', function(req, res) {
                   obj = obj.substring(1, obj.indexOf(":") - 1);
                   id_arr.push(obj);
               }
+              console.log(id_arr);
+              console.log(id_arr.length);
               list.updateOne({id: 1}, {id: 1, name: req.body.name, pages: id_arr, remaining: id_arr.length}, { upsert : true }, function(err, data) {
                   if(err) return console.error(err);
                   res.redirect("/");
@@ -140,6 +142,7 @@ app.get('/api/current_list', function(req, res) {
        res.send(data.name);
    })
 });
+
 
 String.prototype.nth_index_of = function(pattern, n) {
     let i = -1;
