@@ -4,7 +4,9 @@
   "description": "Microlearning App",
   "main": "server.js",
   "scripts": {
-    "test": "mocha ./test/test.js"
+    "test": "mocha ./test/test.js --exit",
+    "start": "node app.js",
+    "deploy": "./scripts/deploy"
   },
   "dependencies": {
     "express": "^4.16.4",
@@ -18,8 +20,8 @@
     "@sendgrid/mail": "^6.4.0"
   },
   "devDependencies": {
-    "mocha": "1.20.1",
-    "supertest": "0.13.0"
+    "mocha": "^8.2.1",
+    "supertest": "^6.0.1"
   },
   "engines": {
     "node": "8.x"
