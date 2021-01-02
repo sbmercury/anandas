@@ -10,7 +10,6 @@
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/style.css">
 
-    <!-- import the webpage's client-side javascript file -->
   </head>
   <body>
     <header>
@@ -19,13 +18,13 @@
       </h1>
     </header>
     <main>
-      <p id="currentList"></p>
+      <p id="currentList"></p> <!-- Inner html set later by a call to the backend -->
       <form action="/api/update_list" method="post">
-        <p><code>POST /api/update_list</code></p>
         <input id="name" type="text" name="name" placeholder="List of sterile insect technique trials">
         <input type="submit" value="Submit">
       </form>
       <script>
+            //Create an HTTP client to make a request that we'll use to retrieve the currently set list
             const HttpClient = function() {
               this.get = function(aUrl, aCallback) {
                   const anHttpRequest = new XMLHttpRequest();
@@ -39,6 +38,7 @@
               }
             }
             const client = new HttpClient();
+            //Retrieve name of the current list from the backend and set it in the HTML
             client.get('/api/current_list', function(response) {
               document.getElementById('currentList').innerHTML = response;
             });

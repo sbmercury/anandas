@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Anandas</title>
+    <meta name="description" content="A cool thing made with Glitch">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css">
+
+  </head>
+  <body>
+
+    <header>
+      <h1 style="color:red;">
+        You've Entered an Invalid Category
+      </h1>
+    </header>
+    <main>
+      <!-- Basic form for entering a new category, style tags used to make it clearer to user that something's gone wrong -->
+      <form style="background-color:slategray;" action="/api/update_list" method="post">
+        <p style="color:white;">Please try again</p>
+        <input id="name" type="text" name="name" placeholder="List of sterile insect technique trials">
+        <input type="submit" value="Submit">
+      </form>
+    </main>
+  </body>
+</html>
