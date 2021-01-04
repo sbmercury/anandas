@@ -139,7 +139,7 @@ app.post('/api/update_list', function(req, res) {
           }
           //If we didn't find any JSON return the bad category telling the user to try again
           else {
-              res.sendFile(__dirname + '/bad_category.html');
+              res.status(400).sendFile(__dirname + '/bad_category.html');
           }
       });
 
