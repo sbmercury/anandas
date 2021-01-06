@@ -45,61 +45,79 @@ schedule.scheduleJob(rule, function() {
 
 //Simple API endpoint for forcing email sends for testing purposes
 app.get("/api/send", function(req, res) {
-    sendEmail().then()
+    sendEmail().then((value) => {
+       console.log(value);
+    });
     res.send("Hi")
 })
 
 //Function for sending an email
 async function sendEmail() {
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(process.env.SENDGRID);
+
     //This first section grabs the list from our database and grabs the first page from it's list, then updates the remaining count
     let date = new Date();
     const data = await list.findOne({id: 1});
-    let pages = data.pages;
-    let id = pages.pop();
-    data.pages = pages;
-    data.remaining = data.remaining - 1;
-    await data.save();
-    console.log(id);
 
-    //Uses the ID retrieved before to generate a wikipedia request URL
-    let url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=' + id +
-        '&prop=text%7Ccategories%7Csections%7Cdisplaytitle%7Cparsewarnings&formatversion=2'
-    https.get(url, (resp) => {
-      let data = '';
+    if (data.remaining > 0) {
+        let pages = data.pages;
+        let id = pages.pop();
+        data.pages = pages;
+        data.remaining = data.remaining - 1;
+        await data.save();
+        console.log(id);
+
+        //Uses the ID retrieved before to generate a wikipedia request URL
+        let url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=' + id +
+            '&prop=text%7Ccategories%7Csections%7Cdisplaytitle%7Cparsewarnings&formatversion=2'
+        https.get(url, (resp) => {
+          let data = '';
 
 
-      resp.on('data', (chunk) => {
-        data += chunk;
-      });
+          resp.on('data', (chunk) => {
+            data += chunk;
+          });
 
-      // The whole response has been received. Generate and send the email
-      resp.on('end', () => {
-          //This first section does a variety of string manipulation on our email text to clean up some formatting quirks
-          let text = JSON.parse(data).parse.text;
-          text = JSON.stringify(text);
-          text = text.replace(/<span class=\\\"mw-editsection-bracket\\\">.<\/span>/gm, "");
-          text = text.replace(/>edit</gm, "><");
-          text = text.slice(text.lastIndexOf("Maintenance template removal") + 86, text.indexOf("id=\\\"References"));
+          // The whole response has been received. Generate and send the email
+          resp.on('end', () => {
+              //This first section does a variety of string manipulation on our email text to clean up some formatting quirks
+              let text = JSON.parse(data).parse.text;
+              text = JSON.stringify(text);
+              text = text.replace(/<span class=\\\"mw-editsection-bracket\\\">.<\/span>/gm, "");
+              text = text.replace(/>edit</gm, "><");
+              text = text.slice(text.lastIndexOf("Maintenance template removal") + 86, text.indexOf("id=\\\"References"));
 
-          let html = text.replace(/\\n/g, "<br>");
+              let html = text.replace(/\\n/g, "<br>");
 
-          //Here we do the basic setup for our email and then send it, uses date generated at beginning for subject line
-          const sgMail = require('@sendgrid/mail');
-          sgMail.setApiKey(process.env.SENDGRID);
-          const msg = {
-              to: process.env.RECIPIENT,
-              from: 'anandas@spencerbartlett.com',
-              subject: 'Knowledge for ' + (date.getMonth() + 1) + "/" + date.getDate(),
-              text: text,
-              html: html,
-          };
-          sgMail.send(msg);
-          return "Sent";
-      });
+              //Here we do the basic setup for our email and then send it, uses date generated at beginning for subject line
+              const msg = {
+                  to: process.env.RECIPIENT,
+                  from: 'anandas@spencerbartlett.com',
+                  subject: 'Knowledge for ' + (date.getMonth() + 1) + "/" + date.getDate(),
+                  text: text,
+                  html: html,
+              };
+              sgMail.send(msg);
+          });
 
-    }).on("error", (err) => {
-      console.log("Error: " + err.message);
-    });
+        }).on("error", (err) => {
+          console.log("Error: " + err.message);
+        });
+        return "Sent";
+    }
+    else {
+        let text = "Unfortunately you've run out of items in your current list, go to Anandas to update the current list";
+        let subject = "Out of Items";
+        const msg = {
+            to: process.env.RECIPIENT,
+            from: 'anandas@spencerbartlett.com',
+            subject: subject,
+            text: text,
+        };
+        sgMail.send(msg);
+        return "Sent OOI";
+    }
 }
 
 //Simple endpoint for serving homepage content
