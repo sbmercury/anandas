@@ -37,8 +37,9 @@ let list = mongoose.model('list', listSchema);
 //Loads node-schedule and uses it create a recurrence rule to send an email every day day at 4am
 const schedule = require('node-schedule');
 
-let rule = new schedule.RecurrenceRule();
-rule.hour = 4;
+let rule = new schedule.scheduleJob('0 8 * * *', function() {
+    sendEmail().then();
+});
 schedule.scheduleJob(rule, function() {
     sendEmail().then();
 });
