@@ -38,7 +38,7 @@ let list = mongoose.model('list', listSchema);
 const schedule = require('node-schedule');
 
 let rule = new schedule.RecurrenceRule();
-rule.hour = 6;
+rule.hour = 12;
 rule.minute = 0;
 schedule.scheduleJob(rule, function(){
     sendEmail().then();
@@ -87,9 +87,12 @@ async function sendEmail() {
               text = JSON.stringify(text);
               text = text.replace(/<span class=\\\"mw-editsection-bracket\\\">.<\/span>/gm, "");
               text = text.replace(/>edit</gm, "><");
+              text = text.replace(/<sup.{1,150}<\/sup>/gm, "");
               text = text.slice(text.lastIndexOf("Maintenance template removal") + 86, text.indexOf("id=\\\"References"));
 
               let html = text.replace(/\\n/g, "<br>");
+
+              console.log(text);
 
               //Here we do the basic setup for our email and then send it, uses date generated at beginning for subject line
               const msg = {
