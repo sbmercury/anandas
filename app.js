@@ -70,7 +70,7 @@ async function sendEmail() {
         console.log(id);
 
         //Uses the ID retrieved before to generate a wikipedia request URL
-        let url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=' + id +
+        let url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=' + 47296339 +
             '&prop=text%7Ccategories%7Csections%7Cdisplaytitle%7Cparsewarnings&formatversion=2'
         https.get(url, (resp) => {
           let data = '';
@@ -88,8 +88,10 @@ async function sendEmail() {
               text = text.replace(/<span class=\\\"mw-editsection-bracket\\\">.<\/span>/gm, "");
               text = text.replace(/>edit</gm, "><");
               text = text.replace(/<sup.{1,150}<\/sup>/gm, "");
-              text = text.slice(text.lastIndexOf("Maintenance template removal") + 86, text.indexOf("id=\\\"References"));
-
+              text = text.replace(/alt=\\\"icon\\\"/gm, "");
+              text = text.replace(/alt=\\\"flag\\\"/gm, "");
+              text = text.slice(text.lastIndexOf("Maintenance template removal") + 80);
+              text = text.slice(text.indexOf("\\\">") + 3, text.indexOf("id=\\\"References"));
               let html = text.replace(/\\n/g, "<br>");
 
               console.log(text);
