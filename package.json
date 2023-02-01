@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "express": "^4.16.4",
-    "mongoose": "^5.11.8",
+    "mongoose": "^5.13.15",
     "mongodb": "^3.3.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
